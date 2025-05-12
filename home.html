@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLGC Community Hub (Remastered)</title>
+    <style>
+        /* General Styles - Remastered */
+        :root {
+            --primary-color: #e040fb; /* Slightly softer purple */
+            --secondary-color: #00e5ff; /* Cyan */
+            --background-start: #121212; /* Darker background */
+            --background-end: #1f1f1f;
+            --text-color: #e0e0e0; /* Off-white */
+            --text-secondary-color: #bdbdbd; /* Lighter gray */
+            --input-bg: #2c2c2c;
+            --card-bg: #212121;
+            --popup-bg: #282828;
+            --border-color: #424242;
+            --error-color: #ff5252;
+            --success-color: #69f0ae;
+            --border-radius: 8px; /* Slightly smaller radius */
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Softer shadow */
+            --font-family: 'Nunito', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background-start), var(--background-end));
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+            font-weight: 700;
+        }
+         h2 {
+             color: var(--secondary-color);
+             margin-top: 10px; /* Add some top margin to section titles */
+         }
+         h3 {
+             color: var(--text-color);
+             margin-bottom: 10px;
+             font-size: 1.1em;
+             text-align: left;
+         }
+
+
+        button {
+            padding: 10px 18px;
+            font-size: 15px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            color: #ffffff; /* White text on buttons */
+            cursor: pointer;
+            transition: background 0.2s ease-in-out, transform 0.1s ease;
+            margin: 5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            color: var(--background-start); /* Dark text on hover */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+        }
+
+        button:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(224, 64, 251, 0.3);
+        }
+
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 25px 0;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); /* Flexible columns */
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+             border: 1px solid var(--border-color);
+        }
+
+        /* Add Post Button (Action Button Style) */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+         .section-header h2 {
+             margin-bottom: 0; /* Remove bottom margin as it's handled by flex */
+             text-align: left;
+         }
+
+        #add-post-action-btn {
+             padding: 8px 15px;
+             font-size: 14px;
+             background-color: #424242; /* Gray background */
+             color: var(--text-color);
+        }
+         #add-post-action-btn:hover {
+             background-color: #616161;
+             color: #ffffff;
+         }
+
+
+        /* Popup Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.85); /* Darker overlay */
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Padding for smaller screens */
+        }
+
+        .modal-content {
+            background-color: var(--popup-bg);
+            margin: auto;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+            max-width: 550px;
+            width: 100%; /* Responsive width */
+            position: relative;
+            color: var(--text-color);
+             border: 1px solid var(--border-color);
+        }
+         .modal-content h2 {
+             margin-top: 0;
+             margin-bottom: 25px;
+             color: var(--primary-color);
+         }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--text-secondary-color);
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+             line-height: 1;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: var(--text-color);
+        }
+
+        /* Posts */
+        #posts-container {
+            max-height: calc(80vh - 100px); /* Adjust height based on viewport */
+            overflow-y: auto;
+            padding-right: 5px; /* Space for scrollbar */
+             margin: -10px; /* Counteract post margin */
+             padding: 10px;
+        }
+         /* Custom Scrollbar */
+        #posts-container::-webkit-scrollbar,
+        #chat-messages::-webkit-scrollbar,
+        .admin-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #posts-container::-webkit-scrollbar-track,
+        #chat-messages::-webkit-scrollbar-track,
+        .admin-list::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 4px;
+        }
+        #posts-container::-webkit-scrollbar-thumb,
+        #chat-messages::-webkit-scrollbar-thumb,
+        .admin-list::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            border: 2px solid var(--input-bg);
+        }
+         #posts-container::-webkit-scrollbar-thumb:hover,
+         #chat-messages::-webkit-scrollbar-thumb:hover,
+         .admin-list::-webkit-scrollbar-thumb:hover {
+             background-color: var(--secondary-color);
+         }
+
+
+        .post {
+            background: rgba(255, 255, 255, 0.05); /* Slightly lighter post bg */
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden; /* Needed for content collapse */
+        }
+
+        .post-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03); /* Header slightly different */
+             border-bottom: 1px solid var(--border-color);
+        }
+         .post-title-area {
+             display: flex;
+             align-items: center;
+             gap: 10px;
+             cursor: pointer; /* Make title area clickable for collapse */
+             flex-grow: 1;
+             margin-right: 15px; /* Space before report button */
+         }
+         .collapse-icon {
+             font-size: 1em;
+             transition: transform 0.3s ease;
+             color: var(--secondary-color);
+         }
+
+        .post-header h3 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.15em;
+             text-align: left;
+             line-height: 1.3;
+        }
+        .post-meta {
+            font-size: 0.8em;
+            color: var(--text-secondary-color);
+            margin-top: 3px;
+        }
+        .post-meta span {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+
+        .post-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+            padding: 0 20px;
+        }
+        .post-content-inner {
+             padding: 15px 0; /* Padding only inside */
+        }
+
+        .post.expanded .post-content {
+             /* max-height will be set by JS */
+             padding: 0 20px; /* Add padding back when expanded */
+        }
+         .post.expanded .collapse-icon {
+             transform: rotate(180deg);
+         }
+
+        .post-content p {
+            margin-bottom: 15px;
+             white-space: pre-wrap; /* Preserve line breaks */
+             word-wrap: break-word;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: block; /* Prevent extra space below image */
+             border: 1px solid var(--border-color);
+        }
+        .post-actions {
+             padding: 10px 20px;
+             text-align: right;
+             border-top: 1px solid var(--border-color);
+             background: rgba(255, 255, 255, 0.03);
+        }
+
+        .report-btn {
+             background: none;
+             border: none;
+             font-size: 1.1em; /* Slightly smaller */
+             cursor: pointer;
+             padding: 5px;
+             color: var(--text-secondary-color);
+             transition: color 0.2s;
+        }
+         .report-btn:hover {
+             color: var(--error-color);
+         }
+
+
+        /* Chat */
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(80vh - 150px); /* Adjust height dynamically */
+            min-height: 300px; /* Minimum height */
+        }
+
+        #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-message {
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align items top */
+             border: 1px solid var(--border-color);
+             word-wrap: break-word;
+        }
+         .chat-message .message-content {
+            flex-grow: 1;
+            margin-right: 10px;
+         }
+
+        .chat-message strong {
+            color: var(--secondary-color);
+             font-weight: 700;
+        }
+         .chat-message .timestamp {
+            font-size: 0.75em;
+            color: var(--text-secondary-color);
+            margin-top: 3px;
+            display: block; /* Ensure timestamp is below */
+         }
+         .chat-message .report-btn {
+             flex-shrink: 0; /* Prevent report button from shrinking */
+             margin-left: 10px;
+         }
+
+        #chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            margin-bottom: 0;
+        }
+         #set-username-container {
+             display: flex;
+             gap: 10px;
+             margin-bottom: 20px;
+         }
+         #set-username-container input { margin-bottom: 0; }
+
+        /* Admin */
+         #admin-view {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+         }
+          #admin-view h3 {
+             margin-bottom: 15px;
+             color: var(--secondary-color);
+             text-align: left;
+             font-size: 1.2em;
+          }
+         .admin-list {
+             max-height: 250px; /* Slightly smaller */
+             overflow-y: auto;
+             border: 1px solid var(--border-color);
+             padding: 10px;
+             border-radius: var(--border-radius);
+             margin-bottom: 20px;
+             background: rgba(0,0,0,0.15);
+         }
+         .admin-list-item {
+             background: rgba(255,255,255,0.05);
+             padding: 12px;
+             border-radius: 5px;
+             margin-bottom: 8px;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             border: 1px solid var(--border-color);
+         }
+          .admin-list-item .item-details {
+             flex-grow: 1;
+             margin-right: 15px;
+             font-size: 0.9em;
+             word-break: break-word;
+          }
+           .admin-list-item .item-details small {
+               display: block;
+               color: var(--text-secondary-color);
+               margin-top: 4px;
+               font-size: 0.9em;
+           }
+          .admin-list-item .item-actions button {
+              padding: 5px 10px;
+              font-size: 13px;
+              background-color: var(--error-color);
+              margin-left: 5px;
+          }
+           .admin-list-item .item-actions button:hover {
+                background-color: #d32f2f; /* Darker red */
+           }
+           .admin-list-item .item-actions button:first-of-type { /* Style delete differently? */
+                /* background-color: var(--error-color); */
+           }
+           .admin-list-item .item-actions button:last-of-type { /* Style dismiss */
+                background-color: #555;
+           }
+            .admin-list-item .item-actions button:last-of-type:hover {
+                 background-color: #757575;
+            }
+
+
+        /* Utility */
+        .hidden {
+            display: none !important; /* Use important to override potential conflicts */
+        }
+         .loading {
+             text-align: center;
+             padding: 30px;
+             color: var(--text-secondary-color);
+             font-style: italic;
+         }
+         #offline-prompt {
+             background-color: var(--error-color);
+             color: #ffffff;
+             padding: 15px;
+             text-align: center;
+             border-radius: var(--border-radius);
+             margin-bottom: 20px;
+             font-weight: 700;
+         }
+         .error-message {
+             color: var(--error-color);
+             font-size: 0.9em;
+             margin-top: 10px;
+             text-align: center;
+         }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <h1>FLGC Community Hub</h1>
+    <h3>Beta Version</h3>
+
+    <div id="offline-prompt" class="hidden">
+        You appear to be offline. Please connect to the internet to use the community features.
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="section-header">
+                <h2>Community Feed</h2>
+                <button id="add-post-action-btn">Create Post +</button>
+            </div>
+            <div id="posts-container">
+                <div class="loading">Loading posts...</div>
+                </div>
+        </div>
+
+        <div class="section">
+            <h2>Live Chat</h2>
+            <div id="set-username-container">
+                <input type="text" id="chat-username-input" placeholder="Enter chat username">
+                <button id="set-username-btn">Set Username</button>
+            </div>
+
+            <div id="chat-container" class="hidden">
+                <div id="chat-messages">
+                     <div class="loading">Loading messages...</div>
+                    </div>
+                <div id="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Type your message...">
+                    <button id="send-chat-btn">Send</button>
+                </div>
+            </div>
+             <hr>
+              <button id="admin-mode-btn"></button>
+               <div id="admin-view">
+                <h2>Management Panel (non functional)</h2>
+                <div id="reported-posts">
+                    <h3>Reported Posts</h3>
+                    <div class="admin-list" id="reported-posts-list"><div class="loading">Loading reports...</div></div>
+                </div>
+                 <div id="reported-chats">
+                    <h3>Reported Chats</h3>
+                    <div class="admin-list" id="reported-chats-list"><div class="loading">Loading reports...</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-post-modal" class="modal">
+        <div class="modal-content">
+            <h2>Create New Post</h2>
+            <input type="text" id="post-username" placeholder="Username (Optional)">
+            <input type="text" id="post-title" placeholder="Post Title (Required)">
+            <textarea id="post-content" placeholder="Post Content (Required)"></textarea>
+            <input type="url" id="post-photo-link" placeholder="Photo URL (Optional, e.g., https://...)">
+             <div id="add-post-error" class="error-message hidden"></div>
+            <button id="submit-post-btn">Submit Post</button>
+        </div>
+    </div>
+
+     <div id="admin-password-modal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Admin Password</h2>
+            <input type="password" id="admin-password-input">
+             <div id="admin-error" class="error-message hidden"></div>
+            <button id="submit-admin-password-btn">Login</button>
+        </div>
+    </div>
+
+     <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="confirmation-title">Confirm Action</h2>
+            <p id="confirmation-message">Are you sure?</p>
+             <div style="text-align: right; margin-top: 20px;">
+                <button id="confirm-action-btn" style="background-color: var(--error-color);">Confirm</button>
+             </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js"; // Optional
+        import {
+            getFirestore, collection, addDoc, getDocs, query, where, doc, getDoc, setDoc,
+            onSnapshot, deleteDoc, orderBy, serverTimestamp, limit, startAfter, Timestamp // Added Timestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+        // --- Firebase Configuration ---
+        // IMPORTANT: Replace with your actual Firebase config
+        const firebaseConfig = {
+    apiKey: "AIzaSyAR5ZNjlqMDSu6nTLEYrTQZrFhSODply8s",
+    authDomain: "flgcas.firebaseapp.com",
+    projectId: "flgcas",
+    storageBucket: "flgcas.firebasestorage.app",
+    messagingSenderId: "756441459947",
+    appId: "1:756441459947:web:82e6aaa245c5cea95ae2ae",
+    measurementId: "G-WT7712F2DP"
+};
+
+        // --- Global Variables ---
+        let db;
+        let chatUsername = localStorage.getItem('chatUsername') || null;
+        let activeChatListener = null;
+        let activePostsListener = null;
+        let activeReportedPostsListener = null;
+        let activeReportedChatsListener = null;
+        let confirmationCallback = null;
+        let isAdmin = false;
+        // --- !!! IMPORTANT !!! ---
+        // Hardcoded admin password for temporary use as requested.
+        // CHANGE THIS in a real application and use a secure authentication method.
+        const adminPassword = '0000';
+
+
+        // --- Initialization ---
+        function initializeFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                // getAnalytics(app); // Optional
+                console.log("Firebase Initialized Successfully");
+                return true;
+            } catch (e) {
+                console.error("Error initializing Firebase:", e);
+                 showOfflineMessage("Could not connect to Firebase. Check your config and internet connection.");
+                return false;
+            }
+        }
+
+         // --- Online/Offline Check ---
+        function checkOnlineStatus() {
+            if (!navigator.onLine) {
+                showOfflineMessage("You are currently offline. Please connect to the internet.");
+                return false;
+            }
+            hideOfflineMessage();
+            return true;
+        }
+
+        function showOfflineMessage(message = "You appear to be offline. Please connect to the internet.") {
+             const offlinePrompt = document.getElementById('offline-prompt');
+             offlinePrompt.textContent = message;
+             offlinePrompt.classList.remove('hidden');
+        }
+         function hideOfflineMessage() {
+             document.getElementById('offline-prompt').classList.add('hidden');
+         }
+
+
+        // --- UI Helper Functions ---
+        function openModal(modalId) {
+            if(checkOnlineStatus()) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'flex';
+                    // Focus first input field if available
+                    const firstInput = modal.querySelector('input, textarea');
+                    if(firstInput) {
+                        setTimeout(() => firstInput.focus(), 50); // Delay focus slightly
+                    }
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+             if (modal) {
+                modal.style.display = 'none';
+             }
+            // Clear sensitive fields like password on close
+            if (modalId === 'admin-password-modal') {
+                const passInput = document.getElementById('admin-password-input');
+                const errorDiv = document.getElementById('admin-error');
+                if(passInput) passInput.value = '';
+                if(errorDiv) errorDiv.classList.add('hidden');
+            }
+             if (modalId === 'add-post-modal') {
+                 const errorDiv = document.getElementById('add-post-error');
+                 if(errorDiv) errorDiv.classList.add('hidden');
+             }
+             confirmationCallback = null; // Reset confirmation callback
+        }
+
+        function showLoading(containerId) {
+             const container = document.getElementById(containerId);
+             if(container) container.innerHTML = '<div class="loading">Loading...</div>';
+        }
+         function clearContainer(containerId) {
+             const container = document.getElementById(containerId);
+             if(container) container.innerHTML = '';
+         }
+         function showFormError(formErrorId, message) {
+             const errorDiv = document.getElementById(formErrorId);
+             if (errorDiv) {
+                 errorDiv.textContent = message;
+                 errorDiv.classList.remove('hidden');
+             }
+         }
+         function hideFormError(formErrorId) {
+              const errorDiv = document.getElementById(formErrorId);
+              if (errorDiv) {
+                  errorDiv.classList.add('hidden');
+              }
+         }
+
+
+        // --- Community Posts ---
+        function setupPosts() {
+             const postsContainer = document.getElementById('posts-container');
+             showLoading('posts-container');
+
+             if (activePostsListener) activePostsListener(); // Unsubscribe
+
+             const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"), limit(50));
+
+              activePostsListener = onSnapshot(postsQuery, (querySnapshot) => {
+                clearContainer('posts-container'); // Clear loading/previous posts
+                if (querySnapshot.empty) {
+                    postsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary-color);">No posts yet. Be the first!</p>';
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        renderPost(doc.id, doc.data());
+                    });
+                }
+            }, (error) => {
+                console.error("Error fetching posts: ", error);
+                 postsContainer.innerHTML = '<p style="text-align: center; color: var(--error-color);">Error loading posts. Please try again later.</p>';
+            });
+        }
+
+        function renderPost(id, data) {
+             const postsContainer = document.getElementById('posts-container');
+             const postDiv = document.createElement('div');
+             postDiv.classList.add('post');
+             postDiv.dataset.id = id;
+
+              // Format timestamp nicely
+              let timestampStr = 'Just now';
+              if (data.timestamp instanceof Timestamp) {
+                  timestampStr = data.timestamp.toDate().toLocaleString(undefined, {
+                      dateStyle: 'medium', timeStyle: 'short'
+                  });
+              } else if (data.timestamp?.toDate) { // Fallback for potential older format
+                   timestampStr = data.timestamp.toDate().toLocaleString();
+              }
+
+              const username = data.username ? `by ${escapeHtml(data.username)}` : 'by Anonymous';
+
+             postDiv.innerHTML = `
+                <div class="post-header">
+                     <div class="post-title-area">
+                         <span class="collapse-icon">►</span>
+                         <div>
+                            <h3>${escapeHtml(data.title)}</h3>
+                            <div class="post-meta">
+                                <span>${username}</span>
+                                <span>${timestampStr}</span>
+                            </div>
+                         </div>
+                    </div>
+                     <button class="report-btn report-post-btn" data-id="${id}" title="Report Post">🚩</button>
+                </div>
+                <div class="post-content">
+                     <div class="post-content-inner">
+                        <p>${escapeHtml(data.content)}</p>
+                        ${data.photoLink ? `<img src="${escapeHtml(data.photoLink)}" alt="Post image" loading="lazy" onerror="this.style.display='none'">` : ''}
+                     </div>
+                </div>
+             `;
+
+            const titleArea = postDiv.querySelector('.post-title-area');
+            const content = postDiv.querySelector('.post-content');
+            const icon = postDiv.querySelector('.collapse-icon');
+
+            titleArea.onclick = () => {
+                const isExpanded = postDiv.classList.toggle('expanded');
+                if (isExpanded) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.textContent = '▼';
+                } else {
+                    content.style.maxHeight = '0px';
+                     icon.textContent = '►';
+                }
+            };
+
+             postsContainer.appendChild(postDiv);
+        }
+
+        async function submitPost() {
+             hideFormError('add-post-error'); // Clear previous errors
+            const titleInput = document.getElementById('post-title');
+            const contentInput = document.getElementById('post-content');
+            const usernameInput = document.getElementById('post-username');
+            const photoLinkInput = document.getElementById('post-photo-link');
+
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+            const username = usernameInput.value.trim() || null;
+            const photoLink = photoLinkInput.value.trim() || null;
+
+            if (!title) {
+                 showFormError('add-post-error', 'Post title is required.');
+                 titleInput.focus();
+                return;
+            }
+             if (!content) {
+                 showFormError('add-post-error', 'Post content is required.');
+                 contentInput.focus();
+                 return;
+             }
+
+
+             // Basic URL validation for photo link
+             if (photoLink) {
+                try {
+                    const url = new URL(photoLink);
+                     // Optional: Check if it looks like an image URL (very basic)
+                     if (!/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url.pathname)) {
+                         console.warn("Photo URL might not be an image:", photoLink);
+                     }
+                } catch (_) {
+                     showFormError('add-post-error', 'Please enter a valid URL for the photo link (e.g., https://...).');
+                     photoLinkInput.focus();
+                    return;
+                }
+            }
+
+            const submitButton = document.getElementById('submit-post-btn');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
+
+            try {
+                await addDoc(collection(db, "posts"), {
+                    username: username,
+                    title: title,
+                    content: content,
+                    photoLink: photoLink,
+                    timestamp: serverTimestamp()
+                });
+                console.log("Post added successfully");
+                closeModal('add-post-modal');
+                 // Clear form
+                 usernameInput.value = '';
+                 titleInput.value = '';
+                 contentInput.value = '';
+                 photoLinkInput.value = '';
+            } catch (e) {
+                console.error("Error adding post: ", e);
+                 showFormError('add-post-error', `Error submitting post: ${e.message}. Please try again.`);
+            } finally {
+                 submitButton.disabled = false;
+                 submitButton.textContent = 'Submit Post';
+            }
+        }
+
+        function confirmReport(type, id) {
+             confirmationCallback = () => reportItem(type, id);
+             document.getElementById('confirmation-title').textContent = `Report ${type}?`;
+             document.getElementById('confirmation-message').textContent = `Are you sure you want to report this ${type}? This helps keep the community safe.`;
+             // Change confirm button style for report
+             const confirmBtn = document.getElementById('confirm-action-btn');
+             confirmBtn.style.backgroundColor = 'var(--error-color)';
+             confirmBtn.textContent = 'Report';
+             openModal('confirmation-modal');
+        }
+
+         async function reportItem(type, id) {
+             console.log(`Reporting ${type} with id ${id}`);
+             const collectionName = type === 'post' ? 'reportedPosts' : 'reportedChats';
+              const itemRef = doc(db, type === 'post' ? 'posts' : 'chatMessages', id);
+              const itemDoc = await getDoc(itemRef);
+
+             if (!itemDoc.exists()) {
+                 console.error(`${type} not found for reporting.`);
+                 alert(`Could not find the ${type} to report.`);
+                 closeModal('confirmation-modal');
+                 return;
+             }
+
+             const itemData = itemDoc.data();
+             const reportData = {
+                itemId: id,
+                itemContent: type === 'post'
+                    ? `${itemData.title}: ${itemData.content?.substring(0, 100)}...` // Added safe navigation
+                    : itemData.message,
+                itemUsername: itemData.username || 'Anonymous',
+                reporterUsername: chatUsername || 'Unknown Reporter',
+                reportTimestamp: serverTimestamp(),
+                type: type
+             };
+
+
+             try {
+                await addDoc(collection(db, collectionName), reportData);
+                console.log(`${type} reported successfully.`);
+                alert(`${type} reported. Our team will review it. Thank you.`);
+             } catch (e) {
+                 console.error(`Error reporting ${type}: `, e);
+                 alert(`Failed to report ${type}. Please try again.`);
+             } finally {
+                 closeModal('confirmation-modal');
+             }
+         }
+
+         // --- Live Chat ---
+         function setupChat() {
+             if (!chatUsername) {
+                 document.getElementById('set-username-container').classList.remove('hidden');
+                 document.getElementById('chat-container').classList.add('hidden');
+                 document.getElementById('chat-username-input').focus();
+             } else {
+                 document.getElementById('set-username-container').classList.add('hidden');
+                 document.getElementById('chat-container').classList.remove('hidden');
+                 loadChatMessages();
+             }
+         }
+
+         function setChatUsername() {
+            const usernameInput = document.getElementById('chat-username-input');
+            const username = usernameInput.value.trim();
+            if (username && username.length >= 3) { // Basic validation
+                chatUsername = username;
+                localStorage.setItem('chatUsername', chatUsername);
+                setupChat();
+                 // Focus chat input after setting username
+                 setTimeout(() => document.getElementById('chat-input')?.focus(), 50);
+            } else {
+                alert('Please enter a username (at least 3 characters).');
+                 usernameInput.focus();
+            }
+        }
+
+        function loadChatMessages() {
+            const messagesContainer = document.getElementById('chat-messages');
+            showLoading('chat-messages');
+
+            if (activeChatListener) activeChatListener();
+
+            const chatQuery = query(collection(db, "chatMessages"), orderBy("timestamp", "desc"), limit(100));
+
+            activeChatListener = onSnapshot(chatQuery, (querySnapshot) => {
+                clearContainer('chat-messages');
+                 const messages = [];
+                 querySnapshot.forEach((doc) => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+
+                 if (messages.length === 0) {
+                     messagesContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary-color);">No messages yet. Start chatting!</p>';
+                 } else {
+                    messages.reverse().forEach(msg => renderChatMessage(msg.id, msg));
+                 }
+
+
+                // Smart scroll: only scroll down if user is already near the bottom
+                const isScrolledToBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50; // 50px tolerance
+                 if (isScrolledToBottom) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                 }
+
+            }, (error) => {
+                console.error("Error fetching chat messages: ", error);
+                 messagesContainer.innerHTML = '<p style="text-align: center; color: var(--error-color);">Error loading chat messages.</p>';
+            });
+        }
+
+        function renderChatMessage(id, data) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message');
+             messageDiv.dataset.id = id;
+
+             let timestampStr = '';
+             if (data.timestamp instanceof Timestamp) {
+                 timestampStr = data.timestamp.toDate().toLocaleTimeString(undefined, {
+                     hour: 'numeric', minute: '2-digit'
+                 });
+             } else if (data.timestamp?.toDate) {
+                  timestampStr = data.timestamp.toDate().toLocaleTimeString();
+             }
+
+
+            messageDiv.innerHTML = `
+                 <div class="message-content">
+                    <strong>${escapeHtml(data.username || 'Anonymous')}:</strong> ${escapeHtml(data.message)}
+                    ${timestampStr ? `<span class="timestamp">${timestampStr}</span>` : ''}
+                 </div>
+                 <button class="report-btn report-chat-btn" data-id="${id}" title="Report Message">🚩</button>
+            `;
+            messagesContainer.appendChild(messageDiv);
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+            if (!chatUsername) {
+                alert('Please set your chat username first.');
+                return;
+            }
+
+            const sendButton = document.getElementById('send-chat-btn');
+            input.disabled = true;
+            sendButton.disabled = true;
+             sendButton.textContent = '...';
+
+            try {
+                await addDoc(collection(db, "chatMessages"), {
+                    username: chatUsername,
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+                input.value = '';
+                // Let onSnapshot handle adding the message and scrolling
+            } catch (e) {
+                console.error("Error sending chat message: ", e);
+                alert('Failed to send message. Please check your connection.');
+            } finally {
+                 input.disabled = false;
+                 sendButton.disabled = false;
+                 sendButton.textContent = 'Send';
+                 input.focus();
+            }
+        }
+
+
+         // --- Admin Mode ---
+         function setupAdminMode() {
+             const adminView = document.getElementById('admin-view');
+             if (!isAdmin) {
+                if(adminView) adminView.style.display = 'none';
+                // Unsubscribe from report listeners if admin logs out (or fails login)
+                if (activeReportedPostsListener) activeReportedPostsListener();
+                if (activeReportedChatsListener) activeReportedChatsListener();
+                activeReportedPostsListener = null;
+                activeReportedChatsListener = null;
+                return;
+             }
+             if(adminView) adminView.style.display = 'block';
+             loadReportedItems('reportedPosts', 'reported-posts-list');
+             loadReportedItems('reportedChats', 'reported-chats-list');
+         }
+
+        function openAdminPasswordPrompt() {
+            if(isAdmin) {
+                 setupAdminMode(); // Already admin, just ensure view is visible
+            } else {
+                openModal('admin-password-modal');
+            }
+        }
+
+        async function checkAdminPassword() {
+             const passwordInput = document.getElementById('admin-password-input');
+             const password = passwordInput.value;
+             const errorP = document.getElementById('admin-error');
+             hideFormError('admin-error'); // Clear previous error
+
+             if (!password) {
+                  showFormError('admin-error', 'Password cannot be empty.');
+                 passwordInput.focus();
+                 return;
+             }
+
+            // --- Using hardcoded password ---
+            if (password === adminPassword) {
+                 console.log("Admin Login Successful (Hardcoded)");
+                 isAdmin = true;
+                 closeModal('admin-password-modal');
+                 setupAdminMode();
+             } else {
+                 console.log("Admin Login Failed: Incorrect Password (Hardcoded)");
+                 showFormError('admin-error', 'Incorrect password.');
+                 passwordInput.focus();
+                 isAdmin = false;
+                 setupAdminMode(); // Ensure admin view is hidden if login fails
+             }
+             passwordInput.value = ''; // Clear password field regardless of outcome
+         }
+
+        function loadReportedItems(collectionName, listElementId) {
+             const listContainer = document.getElementById(listElementId);
+             showLoading(listElementId);
+
+             const listenerKey = `active${collectionName}Listener`;
+             if (window[listenerKey]) window[listenerKey]();
+
+             const reportedQuery = query(collection(db, collectionName), orderBy("reportTimestamp", "desc"), limit(50));
+
+             window[listenerKey] = onSnapshot(reportedQuery, (querySnapshot) => {
+                clearContainer(listElementId);
+                 if (querySnapshot.empty) {
+                    listContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary-color);">No reports found.</p>';
+                 } else {
+                     querySnapshot.forEach((doc) => {
+                         renderReportedItem(doc.id, doc.data(), listElementId);
+                     });
+                 }
+             }, (error) => {
+                 console.error(`Error fetching ${collectionName}: `, error);
+                  listContainer.innerHTML = `<p style="text-align:center; color: var(--error-color);">Error loading reports.</p>`;
+             });
+         }
+
+         function renderReportedItem(reportId, data, listElementId) {
+              const listContainer = document.getElementById(listElementId);
+              const itemDiv = document.createElement('div');
+              itemDiv.classList.add('admin-list-item');
+
+               let reportTimestampStr = 'N/A';
+               if (data.reportTimestamp instanceof Timestamp) {
+                   reportTimestampStr = data.reportTimestamp.toDate().toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+               } else if (data.reportTimestamp?.toDate) {
+                    reportTimestampStr = data.reportTimestamp.toDate().toLocaleString();
+               }
+
+              itemDiv.innerHTML = `
+                 <div class="item-details">
+                     <strong>${escapeHtml(data.type === 'post' ? 'Post' : 'Chat')}:</strong> "${escapeHtml(data.itemContent)}"<br>
+                     <small>Original User: ${escapeHtml(data.itemUsername)} | Reported by: ${escapeHtml(data.reporterUsername)} | On: ${reportTimestampStr}</small>
+                 </div>
+                 <div class="item-actions">
+                     <button onclick="confirmDeleteItem('${data.type}', '${data.itemId}', '${reportId}')" title="Delete Original Content & Report">Delete Content</button>
+                      <button onclick="dismissReport('${data.type === 'post' ? 'reportedPosts' : 'reportedChats'}', '${reportId}')" title="Remove this Report Only">Dismiss Report</button>
+                 </div>
+              `;
+              listContainer.appendChild(itemDiv);
+         }
+
+         function confirmDeleteItem(type, itemId, reportId) {
+              confirmationCallback = () => deleteItem(type, itemId, reportId);
+             document.getElementById('confirmation-title').textContent = `Delete Content?`;
+             document.getElementById('confirmation-message').textContent = `Are you sure you want to permanently delete this ${type}? This action cannot be undone and will also remove this report.`;
+             // Change confirm button style for delete
+             const confirmBtn = document.getElementById('confirm-action-btn');
+             confirmBtn.style.backgroundColor = 'var(--error-color)';
+             confirmBtn.textContent = 'Delete Content';
+             openModal('confirmation-modal');
+         }
+
+          async function deleteItem(type, itemId, reportId) {
+             console.log(`Deleting ${type} ${itemId} and report ${reportId}`);
+             const itemCollection = type === 'post' ? 'posts' : 'chatMessages';
+             const reportCollection = type === 'post' ? 'reportedPosts' : 'reportedChats';
+
+             const itemRef = doc(db, itemCollection, itemId);
+             const reportRef = doc(db, reportCollection, reportId);
+
+             try {
+                 // It's okay if the item is already deleted, still delete the report
+                 try {
+                    await deleteDoc(itemRef);
+                 } catch (itemDeleteError) {
+                     console.warn(`Could not delete item ${itemId} (maybe already deleted?):`, itemDeleteError);
+                 }
+                 await deleteDoc(reportRef);
+                 console.log(`${type} and report deleted successfully.`);
+                 alert(`${type} content and report deleted.`);
+             } catch (e) {
+                 console.error(`Error deleting ${type} or report: `, e);
+                 alert(`Failed to delete ${type}. Check console for errors.`);
+             } finally {
+                  closeModal('confirmation-modal');
+                  // onSnapshot listeners will update the UI
+             }
+          }
+
+         async function dismissReport(reportCollection, reportId) {
+              console.log(`Dismissing report ${reportId} from ${reportCollection}`);
+              const reportRef = doc(db, reportCollection, reportId);
+              try {
+                  await deleteDoc(reportRef);
+                  console.log(`Report ${reportId} dismissed.`);
+                  // No alert needed for simple dismiss, UI updates automatically
+              } catch (e) {
+                   console.error(`Error dismissing report ${reportId}: `, e);
+                  alert(`Failed to dismiss report. Check console.`);
+              }
+              // onSnapshot will update the UI
+          }
+
+        // --- Utility Functions ---
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') {
+                 console.warn("escapeHtml called with non-string:", unsafe);
+                 return unsafe;
+            }
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            // Use new button ID
+            document.getElementById('add-post-action-btn').addEventListener('click', () => openModal('add-post-modal'));
+            document.getElementById('submit-post-btn').addEventListener('click', submitPost);
+             document.getElementById('set-username-btn').addEventListener('click', setChatUsername);
+             document.getElementById('send-chat-btn').addEventListener('click', sendChatMessage);
+             document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                 if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for newline
+                     e.preventDefault(); // Prevent default newline behavior
+                     sendChatMessage();
+                 }
+             });
+             document.getElementById('admin-mode-btn').addEventListener('click', openAdminPasswordPrompt);
+             document.getElementById('submit-admin-password-btn').addEventListener('click', checkAdminPassword);
+              document.getElementById('admin-password-input').addEventListener('keypress', (e) => {
+                  if (e.key === 'Enter') checkAdminPassword();
+              });
+
+              // Confirmation modal action
+              document.getElementById('confirm-action-btn').addEventListener('click', () => {
+                  if (confirmationCallback) {
+                      confirmationCallback();
+                  }
+                  // Don't close modal here, let the callback handle it if needed
+              });
+
+              // Event delegation for report buttons
+              document.body.addEventListener('click', function(event) {
+                  const target = event.target.closest('.report-btn'); // Find closest report button
+                  if (!target) return; // Exit if click wasn't on or inside a report button
+
+                  if (target.classList.contains('report-post-btn')) {
+                      const postId = target.dataset.id;
+                      if(postId) confirmReport('post', postId);
+                  } else if (target.classList.contains('report-chat-btn')) {
+                      const chatId = target.dataset.id;
+                       if(chatId) confirmReport('chat', chatId);
+                  }
+              });
+
+              // Online/Offline listeners
+              window.addEventListener('online', checkOnlineStatus);
+              window.addEventListener('offline', checkOnlineStatus);
+        }
+
+        // --- App Start ---
+        document.addEventListener('DOMContentLoaded', () => {
+             if (checkOnlineStatus()) {
+                if (initializeFirebase()) {
+                    setupEventListeners();
+                    setupPosts();
+                    setupChat();
+                    // Admin view is handled by its setup function based on isAdmin status
+                }
+            } else {
+                 // Optionally show a more persistent offline message if Firebase fails initially
+                 showOfflineMessage("Cannot initialize app. Please check your internet connection.");
+            }
+        });
+
+    </script>
+</body>
+</html>
