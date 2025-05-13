@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FLGC Community Hub (Remastered)</title>
+    <title>FLGC Community (Beta 4)</title>
     <style>
         /* General Styles - Remastered */
         :root {
@@ -300,6 +300,24 @@
             display: inline-block;
             margin-right: 10px;
         }
+        /* Comment count icon */
+        .comment-count {
+            font-size: 0.9em;
+            color: var(--text-secondary-color);
+            margin-left: auto; /* Push to the right */
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+         .comment-count:hover {
+             color: var(--secondary-color);
+         }
+        .comment-count svg {
+            width: 1em;
+            height: 1em;
+            fill: currentColor; /* Use current text color */
+        }
 
 
         .post-content {
@@ -352,6 +370,70 @@
         }
          .report-btn:hover {
              color: var(--error-color);
+         }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        .comments-section h4 {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+            font-size: 1em;
+            text-align: left;
+        }
+        .comment-list {
+            max-height: 200px; /* Limit height and add scroll */
+            overflow-y: auto;
+            padding-right: 5px; /* Space for scrollbar */
+            margin-bottom: 15px;
+        }
+         .comment-list::-webkit-scrollbar {
+            width: 6px;
+         }
+         .comment-list::-webkit-scrollbar-track {
+             background: var(--input-bg);
+             border-radius: 3px;
+         }
+         .comment-list::-webkit-scrollbar-thumb {
+             background-color: var(--primary-color);
+             border-radius: 3px;
+         }
+
+        .comment {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .comment strong {
+            color: var(--secondary-color);
+            font-weight: 700;
+            margin-right: 5px;
+        }
+        .comment .timestamp {
+            font-size: 0.7em;
+            color: var(--text-secondary-color);
+            margin-left: 8px;
+        }
+        .add-comment-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .add-comment-area input {
+            flex-grow: 1;
+            margin-bottom: 0;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+         .add-comment-area button {
+             padding: 8px 15px;
+             font-size: 0.9em;
+             margin: 0; /* Remove default button margin */
          }
 
 
@@ -512,11 +594,12 @@
 
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <h1>FLGC Community Hub</h1>
-    <h3>Beta Version</h3>
+    <h1>FLGC Community</h1>
+    <h3>Beta Version 4</h3>
 
     <div id="offline-prompt" class="hidden">
         You appear to be offline. Please connect to the internet to use the community features.
@@ -603,7 +686,8 @@
         // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js"; // Optional
         import {
             getFirestore, collection, addDoc, getDocs, query, where, doc, getDoc, setDoc,
-            onSnapshot, deleteDoc, orderBy, serverTimestamp, limit, startAfter, Timestamp // Added Timestamp
+            onSnapshot, deleteDoc, orderBy, serverTimestamp, limit, startAfter, Timestamp,
+            updateDoc, increment // Added updateDoc and increment for comment count
         } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
         // --- Firebase Configuration ---
@@ -627,6 +711,9 @@
         let activeReportedChatsListener = null;
         let confirmationCallback = null;
         let isAdmin = false;
+        // Store active comment listeners by post ID
+        const activeCommentListeners = {};
+
         // --- !!! IMPORTANT !!! ---
         // Hardcoded admin password for temporary use as requested.
         // CHANGE THIS in a real application and use a secure authentication method.
@@ -766,6 +853,7 @@
               }
 
               const username = data.username ? `by ${escapeHtml(data.username)}` : 'by Anonymous';
+              const commentCount = data.commentCount || 0; // Get comment count, default to 0
 
              postDiv.innerHTML = `
                 <div class="post-header">
@@ -779,12 +867,26 @@
                             </div>
                          </div>
                     </div>
+                    <div class="comment-count" data-id="${id}" title="View Comments">
+                        <i class="fas fa-comment"></i> ${commentCount}
+                    </div>
                      <button class="report-btn report-post-btn" data-id="${id}" title="Report Post">🚩</button>
                 </div>
                 <div class="post-content">
                      <div class="post-content-inner">
                         <p>${escapeHtml(data.content)}</p>
                         ${data.photoLink ? `<img src="${escapeHtml(data.photoLink)}" alt="Post image" loading="lazy" onerror="this.style.display='none'">` : ''}
+
+                        <div class="comments-section" data-post-id="${id}">
+                             <h4>Comments</h4>
+                             <div class="comment-list">
+                                 <p style="text-align: center; color: var(--text-secondary-color); font-size: 0.9em;">Loading comments...</p>
+                             </div>
+                             <div class="add-comment-area">
+                                 <input type="text" class="comment-input" placeholder="Add a comment...">
+                                 <button class="submit-comment-btn">Post</button>
+                             </div>
+                        </div>
                      </div>
                 </div>
              `;
@@ -792,19 +894,38 @@
             const titleArea = postDiv.querySelector('.post-title-area');
             const content = postDiv.querySelector('.post-content');
             const icon = postDiv.querySelector('.collapse-icon');
+            const commentCountElement = postDiv.querySelector('.comment-count');
+            const commentsSection = postDiv.querySelector('.comments-section');
 
-            titleArea.onclick = () => {
+            // Toggle post collapse and comments
+            const togglePost = () => {
                 const isExpanded = postDiv.classList.toggle('expanded');
                 if (isExpanded) {
                     content.style.maxHeight = content.scrollHeight + "px";
                     icon.textContent = '▼';
+                    // Load comments when expanded
+                    loadComments(id);
                 } else {
                     content.style.maxHeight = '0px';
-                     icon.textContent = '►';
+                    icon.textContent = '►';
+                    // Unsubscribe from comments when collapsed
+                    unsubscribeFromComments(id);
                 }
             };
 
+            titleArea.onclick = togglePost;
+            commentCountElement.onclick = togglePost; // Also toggle on clicking comment count
+
              postsContainer.appendChild(postDiv);
+
+             // Setup event listener for adding comments (delegated)
+             commentsSection.querySelector('.submit-comment-btn').addEventListener('click', () => submitComment(id, commentsSection));
+             commentsSection.querySelector('.comment-input').addEventListener('keypress', (e) => {
+                 if (e.key === 'Enter' && !e.shiftKey) {
+                     e.preventDefault();
+                     submitComment(id, commentsSection);
+                 }
+             });
         }
 
         async function submitPost() {
@@ -857,7 +978,8 @@
                     title: title,
                     content: content,
                     photoLink: photoLink,
-                    timestamp: serverTimestamp()
+                    timestamp: serverTimestamp(),
+                    commentCount: 0 // Initialize comment count
                 });
                 console.log("Post added successfully");
                 closeModal('add-post-modal');
@@ -924,6 +1046,114 @@
              }
          }
 
+        // --- Comments Functionality ---
+        function loadComments(postId) {
+            const commentsContainer = document.querySelector(`.comments-section[data-post-id="${postId}"] .comment-list`);
+            if (!commentsContainer) return; // Should not happen if called correctly
+
+            // Clear previous comments and show loading
+            commentsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary-color); font-size: 0.9em;">Loading comments...</p>';
+
+            // Unsubscribe from any existing listener for this post
+            unsubscribeFromComments(postId);
+
+            const commentsQuery = query(collection(db, `posts/${postId}/comments`), orderBy("timestamp", "asc"));
+
+            activeCommentListeners[postId] = onSnapshot(commentsQuery, (querySnapshot) => {
+                clearContainer(commentsContainer.id); // Clear loading/previous comments
+                if (querySnapshot.empty) {
+                    commentsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary-color); font-size: 0.9em;">No comments yet. Be the first!</p>';
+                } else {
+                    commentsContainer.innerHTML = ''; // Clear before adding new comments
+                    querySnapshot.forEach((doc) => {
+                        renderComment(doc.id, doc.data(), commentsContainer);
+                    });
+                }
+                 // Adjust post content max-height after comments load/update
+                 const postDiv = commentsContainer.closest('.post');
+                 if (postDiv && postDiv.classList.contains('expanded')) {
+                    const postContent = postDiv.querySelector('.post-content');
+                    postContent.style.maxHeight = postContent.scrollHeight + "px";
+                 }
+
+            }, (error) => {
+                console.error(`Error fetching comments for post ${postId}: `, error);
+                 commentsContainer.innerHTML = '<p style="text-align: center; color: var(--error-color); font-size: 0.9em;">Error loading comments.</p>';
+            });
+             console.log(`Started listening for comments on post ${postId}`);
+        }
+
+        function renderComment(commentId, data, container) {
+             const commentDiv = document.createElement('div');
+             commentDiv.classList.add('comment');
+             commentDiv.dataset.id = commentId;
+
+             let timestampStr = '';
+             if (data.timestamp instanceof Timestamp) {
+                 timestampStr = data.timestamp.toDate().toLocaleString(undefined, {
+                     dateStyle: 'short', timeStyle: 'short'
+                 });
+             } else if (data.timestamp?.toDate) {
+                  timestampStr = data.timestamp.toDate().toLocaleString();
+             }
+
+             commentDiv.innerHTML = `
+                 <strong>${escapeHtml(data.username || 'Anonymous')}:</strong> ${escapeHtml(data.commentText)}
+                 ${timestampStr ? `<span class="timestamp">${timestampStr}</span>` : ''}
+             `;
+             container.appendChild(commentDiv);
+        }
+
+        async function submitComment(postId, commentsSectionElement) {
+            const commentInput = commentsSectionElement.querySelector('.comment-input');
+            const submitButton = commentsSectionElement.querySelector('.submit-comment-btn');
+            const commentText = commentInput.value.trim();
+
+            if (!commentText) return;
+             if (!chatUsername) {
+                 alert('Please set your chat username first to comment.');
+                 return;
+             }
+
+            submitButton.disabled = true;
+            submitButton.textContent = '...';
+
+            try {
+                // Add comment to the subcollection
+                await addDoc(collection(db, `posts/${postId}/comments`), {
+                    username: chatUsername,
+                    commentText: commentText,
+                    timestamp: serverTimestamp()
+                });
+
+                // Increment the comment count on the post document
+                const postRef = doc(db, 'posts', postId);
+                await updateDoc(postRef, {
+                    commentCount: increment(1)
+                });
+
+                console.log(`Comment added to post ${postId}`);
+                commentInput.value = ''; // Clear input
+                // onSnapshot listener for comments will handle rendering the new comment
+            } catch (e) {
+                console.error(`Error adding comment to post ${postId}: `, e);
+                alert('Failed to add comment. Please try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Post';
+                 commentInput.focus();
+            }
+        }
+
+        function unsubscribeFromComments(postId) {
+            if (activeCommentListeners[postId]) {
+                activeCommentListeners[postId](); // Call the unsubscribe function
+                delete activeCommentListeners[postId]; // Remove from the map
+                 console.log(`Unsubscribed from comments on post ${postId}`);
+            }
+        }
+
+
          // --- Live Chat ---
          function setupChat() {
              if (!chatUsername) {
@@ -958,27 +1188,27 @@
 
             if (activeChatListener) activeChatListener();
 
-            const chatQuery = query(collection(db, "chatMessages"), orderBy("timestamp", "desc"), limit(100));
+            // Fetch last 100 messages, ordered by timestamp ascending for correct display order
+            const chatQuery = query(collection(db, "chatMessages"), orderBy("timestamp", "asc"), limit(100));
 
             activeChatListener = onSnapshot(chatQuery, (querySnapshot) => {
-                clearContainer('chat-messages');
-                 const messages = [];
-                 querySnapshot.forEach((doc) => {
-                    messages.push({ id: doc.id, ...doc.data() });
-                });
+                const isInitialLoad = messagesContainer.innerHTML.includes('Loading messages...'); // Check if it's the very first load
+                const shouldScroll = messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50; // Check if user is near bottom
 
-                 if (messages.length === 0) {
+                clearContainer('chat-messages'); // Clear loading/previous messages
+
+                 if (querySnapshot.empty) {
                      messagesContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary-color);">No messages yet. Start chatting!</p>';
                  } else {
-                    messages.reverse().forEach(msg => renderChatMessage(msg.id, msg));
+                     querySnapshot.forEach((doc) => {
+                        renderChatMessage(doc.id, doc.data());
+                    });
                  }
 
+                // Always scroll to the bottom on new messages
+                // This will scroll on initial load and whenever new messages arrive via onSnapshot
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                // Smart scroll: only scroll down if user is already near the bottom
-                const isScrolledToBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50; // 50px tolerance
-                 if (isScrolledToBottom) {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                 }
 
             }, (error) => {
                 console.error("Error fetching chat messages: ", error);
@@ -986,20 +1216,49 @@
             });
         }
 
+        // Helper function to format chat timestamp
+        function formatChatTimestamp(timestamp) {
+            if (!(timestamp instanceof Timestamp)) {
+                if (timestamp?.toDate) {
+                    timestamp = Timestamp.fromDate(timestamp.toDate()); // Convert potential older format
+                } else {
+                    return ''; // Return empty if timestamp is not valid
+                }
+            }
+
+            const date = timestamp.toDate();
+            const now = new Date();
+
+            // Set times to midnight for date comparison
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+            const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+            const timeString = date.toLocaleTimeString(undefined, {
+                hour: 'numeric', minute: '2-digit'
+            });
+
+            if (messageDate.getTime() === today.getTime()) {
+                return `today at ${timeString}`;
+            } else if (messageDate.getTime() === yesterday.getTime()) {
+                return `yesterday at ${timeString}`;
+            } else {
+                // Format for dates older than yesterday
+                return date.toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                }) + ` at ${timeString}`;
+            }
+        }
+
+
         function renderChatMessage(id, data) {
             const messagesContainer = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message');
              messageDiv.dataset.id = id;
 
-             let timestampStr = '';
-             if (data.timestamp instanceof Timestamp) {
-                 timestampStr = data.timestamp.toDate().toLocaleTimeString(undefined, {
-                     hour: 'numeric', minute: '2-digit'
-                 });
-             } else if (data.timestamp?.toDate) {
-                  timestampStr = data.timestamp.toDate().toLocaleTimeString();
-             }
+             // Use the new formatting function
+             const timestampStr = formatChatTimestamp(data.timestamp);
 
 
             messageDiv.innerHTML = `
@@ -1034,7 +1293,7 @@
                     timestamp: serverTimestamp()
                 });
                 input.value = '';
-                // Let onSnapshot handle adding the message and scrolling
+                // onSnapshot will handle adding the message and scrolling
             } catch (e) {
                 console.error("Error sending chat message: ", e);
                 alert('Failed to send message. Please check your connection.');
@@ -1276,6 +1535,10 @@
             }
         });
 
+         // Expose functions to global scope for inline event handlers (like confirmDeleteItem)
+         // This is generally discouraged in modern JS but needed for the current HTML structure
+         window.confirmDeleteItem = confirmDeleteItem;
+         window.dismissReport = dismissReport;
     </script>
 </body>
 </html>
